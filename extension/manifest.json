@@ -1,15 +1,36 @@
 {
   "manifest_version": 3,
   "name": "AI Decision Firewall",
-  "version": "1.0.0",
-  "description": "Safety and risk evaluation layer between AI agents and browser actions. Analyzes actions for risk before execution.",
+  "version": "1.1.0",
+  "description": "Safety and risk evaluation layer between AI agents and browser actions. Detects and intercepts high-risk browser actions in real time.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "AI Decision Firewall"
   },
-  "permissions": [],
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
   "host_permissions": [
     "http://127.0.0.1:8000/*",
     "https://*.onrender.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "config.js",
+        "content.js"
+      ],
+      "css": [
+        "overlay.css"
+      ],
+      "run_at": "document_start"
+    }
   ]
 }

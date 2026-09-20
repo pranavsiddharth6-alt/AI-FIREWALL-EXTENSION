@@ -1,6 +1,8 @@
 from typing import Dict, Any, Optional
 from pydantic import BaseModel, Field
 
+from app.services.llm_engine import analyze_ambiguous_action_with_llm
+
 
 class ActionRequest(BaseModel):
     action_type: str = Field(..., description="Type of action attempted by AI agent")
@@ -18,7 +20,7 @@ class RiskAssessment(BaseModel):
     amount: Optional[float] = None
 
 
-# Rule mapping rule table
+# Rule mapping table for deterministic evaluation
 RISK_RULES: Dict[str, Dict[str, str]] = {
     "search": {
         "risk_level": "LOW",
@@ -64,7 +66,9 @@ RISK_RULES: Dict[str, Dict[str, str]] = {
 
 
 def evaluate_action_risk(request: ActionRequest) -> RiskAssessment:
-    """Evaluates the risk level and decision for an incoming AI action request."""
+    """Evaluates the risk level and decision for an incoming AI action request.
+    Uses Rule Engine first. If action is ambiguous, delegates to LLM Engine.
+    """
     action_key = request.action_type.lower().strip()
 
     if action_key in RISK_RULES:
@@ -73,10 +77,22 @@ def evaluate_action_risk(request: ActionRequest) -> RiskAssessment:
         decision = rule["decision"]
         reason = rule["reason"]
     else:
-        # Default fallback rule
-        risk_level = "MEDIUM"
-        decision = "REVIEW"
-        reason = f"Unrecognized action type '{request.action_type}' requires human review."
+        # Action is ambiguous: Invoke LLM analysis if configured
+        llm_result = analyze_ambiguous_action_with_llm(
+            action_type=request.action_type,
+            website=request.website,
+            amount=request.amount,
+            details=request.details,
+        )
+        if llm_result:
+            risk_level = llm_result.risk_level
+            decision = llm_result.decision
+            reason = f"[AI Evaluation] {llm_result.reason}"
+        else:
+            # Safe fallback rule when LLM is unavailable or unconfigured
+            risk_level = "MEDIUM"
+            decision = "REVIEW"
+            reason = f"Unrecognized action type '{request.action_type}' requires human review."
 
     return RiskAssessment(
         risk_level=risk_level,
