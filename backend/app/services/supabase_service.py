@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from supabase import create_client, Client
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,9 @@ def get_supabase_client() -> Client:
     if not url or not key or "your_supabase_url" in url or "your_service_role_key" in key:
         raise ValueError("Supabase environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY) are missing or set to placeholders.")
 
-
     try:
         return create_client(url, key)
     except Exception as e:
-        # Sanitize credentials from logs
         sanitized_msg = str(e)
         if url:
             sanitized_msg = sanitized_msg.replace(url, "[SUPABASE_URL]")
@@ -48,11 +46,7 @@ def save_action_log(
     decision: str,
     reason: str,
 ) -> Dict[str, Any]:
-    """Saves an evaluated action record into the action_logs table in Supabase.
-
-    Returns:
-        Dict[str, Any]: The inserted record data from Supabase.
-    """
+    """Saves an evaluated action record into the action_logs table in Supabase."""
     client = get_supabase_client()
 
     log_data = {
@@ -70,7 +64,6 @@ def save_action_log(
             return response.data[0]
         return log_data
     except Exception as e:
-        # Sanitize credentials from error message
         error_str = str(e)
         url = os.getenv("SUPABASE_URL", "")
         key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
@@ -81,3 +74,14 @@ def save_action_log(
 
         logger.error(f"Supabase write error: {error_str}")
         raise RuntimeError(f"Database insertion failed: {error_str}") from None
+
+
+def get_recent_logs(limit: int = 20) -> List[Dict[str, Any]]:
+    """Fetches recent action logs from Supabase ordered by creation timestamp."""
+    try:
+        client = get_supabase_client()
+        response = client.table("action_logs").select("*").order("created_at", desc=True).limit(limit).execute()
+        return response.data or []
+    except Exception as e:
+        logger.error(f"Failed to fetch activity logs: {str(e)}")
+        return []

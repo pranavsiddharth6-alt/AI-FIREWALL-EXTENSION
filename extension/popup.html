@@ -10,78 +10,163 @@
   <div class="container">
     <!-- Header -->
     <header class="header">
-      <div class="header-icon">🛡️</div>
-      <h1 class="header-title">AI Decision Firewall</h1>
-      <p class="header-subtitle">Action Risk Analyzer</p>
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="header-icon">🛡️</span>
+          <div>
+            <h1 class="header-title">AI Decision Firewall</h1>
+            <p class="header-subtitle">Cybersecurity Guard for AI Agents</p>
+          </div>
+        </div>
+        <div id="protectionStatus" class="status-badge status-active">
+          <span class="status-dot">●</span> ACTIVE
+        </div>
+      </div>
     </header>
 
-    <!-- Input Form -->
-    <form id="analyzeForm" class="form">
+    <!-- Kill Switch Card -->
+    <div class="killswitch-card">
+      <div class="killswitch-info">
+        <span class="killswitch-title">Emergency Control</span>
+        <span class="killswitch-desc">Block all incoming AI actions immediately</span>
+      </div>
+      <button id="killSwitchBtn" class="btn-killswitch">🛑 STOP AI</button>
+    </div>
+
+    <!-- Stats Counter Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number" id="statToday">0</span>
+        <span class="stat-label">Actions Today</span>
+      </div>
+      <div class="stat-card stat-allow">
+        <span class="stat-number" id="statAllowed">0</span>
+        <span class="stat-label">Allowed</span>
+      </div>
+      <div class="stat-card stat-review">
+        <span class="stat-number" id="statReviewed">0</span>
+        <span class="stat-label">Reviewed</span>
+      </div>
+      <div class="stat-card stat-block">
+        <span class="stat-number" id="statBlocked">0</span>
+        <span class="stat-label">Blocked</span>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button id="tabActivity" class="tab-btn active">📊 Activity Logs</button>
+      <button id="tabDemo" class="tab-btn">🧪 Live Demo</button>
+      <button id="tabSettings" class="tab-btn">⚙️ Settings</button>
+    </div>
+
+    <!-- TAB 1: Activity Logs -->
+    <div id="viewActivity" class="tab-view">
+      <div class="view-header">
+        <span class="view-title">Recent Audit Logs</span>
+        <button id="refreshLogsBtn" class="btn-icon">🔄 Refresh</button>
+      </div>
+      <div id="activityLogsList" class="logs-container">
+        <div class="logs-loading">Loading recent activity...</div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Live Demo Tester -->
+    <div id="viewDemo" class="tab-view hidden">
+      <div class="view-header">
+        <span class="view-title">Judge Hackathon Scenarios</span>
+      </div>
+      <div class="demo-scenarios">
+        <button id="demoScenarioHigh" class="btn-scenario scenario-high">
+          <div class="scenario-text">
+            <strong>Scenario A: High Risk Purchase</strong>
+            <small>Purchase ₹47,999 on example.com → HIGH / REVIEW</small>
+          </div>
+          <span class="scenario-badge badge-high">HIGH</span>
+        </button>
+
+        <button id="demoScenarioLow" class="btn-scenario scenario-low">
+          <div class="scenario-text">
+            <strong>Scenario B: Low Risk Search</strong>
+            <small>Informational Search on google.com → LOW / ALLOW</small>
+          </div>
+          <span class="scenario-badge badge-low">LOW</span>
+        </button>
+
+        <button id="demoScenarioCritical" class="btn-scenario scenario-critical">
+          <div class="scenario-text">
+            <strong>Scenario C: Critical File Deletion</strong>
+            <small>Delete Cloud Files on cloud.com → CRITICAL / BLOCK</small>
+          </div>
+          <span class="scenario-badge badge-critical">CRITICAL</span>
+        </button>
+
+        <button id="demoScenarioLLM" class="btn-scenario scenario-llm">
+          <div class="scenario-text">
+            <strong>Scenario D: Ambiguous Action</strong>
+            <small>Custom Script → Evaluated via Gemini LLM Engine</small>
+          </div>
+          <span class="scenario-badge badge-review">LLM</span>
+        </button>
+      </div>
+
+      <!-- Result Display Area -->
+      <div id="resultArea" class="result-area hidden">
+        <h2 class="result-title">Assessment Result</h2>
+        <div class="result-content">
+          <div class="result-row">
+            <span class="result-label">Risk Level</span>
+            <span id="riskLevel" class="result-value badge"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Decision</span>
+            <span id="decision" class="result-value badge"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Action</span>
+            <span id="resultAction" class="result-value"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Website</span>
+            <span id="resultWebsite" class="result-value"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Amount</span>
+            <span id="resultAmount" class="result-value"></span>
+          </div>
+          <div class="result-row reason-row">
+            <span class="result-label">Reason</span>
+            <span id="reason" class="result-value reason-text"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Policy & Settings -->
+    <div id="viewSettings" class="tab-view hidden">
       <div class="form-group">
-        <label for="actionType">Action Type</label>
-        <select id="actionType" required>
-          <option value="" disabled selected>Select an action...</option>
-          <option value="search">Search</option>
-          <option value="open_page">Open Page</option>
-          <option value="fill_personal_info">Fill Personal Info</option>
-          <option value="upload_file">Upload File</option>
-          <option value="send_email">Send Email</option>
-          <option value="purchase">Purchase</option>
-          <option value="delete_file">Delete File</option>
-          <option value="money_transfer">Money Transfer</option>
+        <label for="policyMode">Security Policy Mode</label>
+        <select id="policyMode">
+          <option value="balanced">Balanced (Default - Prompt High Risk)</option>
+          <option value="strict">Strict (Block All Medium & High Risk)</option>
+          <option value="permissive">Permissive (Log Only)</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="website">Website</label>
-        <input type="text" id="website" placeholder="e.g. example.com" required>
+        <label for="backendTarget">Backend API Target</label>
+        <select id="backendTarget">
+          <option value="render">Render Cloud (https://ai-firewall-extension.onrender.com)</option>
+          <option value="local">Local Dev Server (http://127.0.0.1:8000)</option>
+        </select>
       </div>
 
-      <div class="form-group">
-        <label for="amount">Amount (₹)</label>
-        <input type="number" id="amount" placeholder="e.g. 5000" min="0" step="0.01">
-      </div>
-
-      <div class="form-group">
-        <label for="details">Details / Item</label>
-        <input type="text" id="details" placeholder="e.g. Laptop, Document.pdf">
-      </div>
-
-      <button type="submit" id="analyzeBtn" class="btn-analyze">
-        <span id="btnText">🔍 Analyze Action</span>
-        <span id="btnLoader" class="loader hidden"></span>
-      </button>
-    </form>
-
-    <!-- Result Area -->
-    <div id="resultArea" class="result-area hidden">
-      <h2 class="result-title">Assessment Result</h2>
-
-      <div id="resultContent" class="result-content">
-        <div class="result-row">
-          <span class="result-label">Risk Level</span>
-          <span id="riskLevel" class="result-value badge"></span>
+      <div class="setting-toggle-row">
+        <div>
+          <strong style="font-size: 12px;">Fail Safe Mode</strong>
+          <p style="font-size: 10px; color: var(--text-secondary);">Block high-risk actions if backend connection fails</p>
         </div>
-        <div class="result-row">
-          <span class="result-label">Decision</span>
-          <span id="decision" class="result-value badge"></span>
-        </div>
-        <div class="result-row">
-          <span class="result-label">Action</span>
-          <span id="resultAction" class="result-value"></span>
-        </div>
-        <div class="result-row">
-          <span class="result-label">Website</span>
-          <span id="resultWebsite" class="result-value"></span>
-        </div>
-        <div class="result-row">
-          <span class="result-label">Amount</span>
-          <span id="resultAmount" class="result-value"></span>
-        </div>
-        <div class="result-row reason-row">
-          <span class="result-label">Reason</span>
-          <span id="reason" class="result-value reason-text"></span>
-        </div>
+        <input type="checkbox" id="failSafeToggle" checked style="width: auto;">
       </div>
     </div>
 
@@ -93,7 +178,7 @@
 
     <!-- Footer -->
     <footer class="footer">
-      <p>Backend Service → <code id="backendHost">127.0.0.1:8000</code></p>
+      <p>Target Backend → <code id="backendHost">Connecting...</code></p>
     </footer>
   </div>
 

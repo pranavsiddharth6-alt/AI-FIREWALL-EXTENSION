@@ -1,6 +1,7 @@
+from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
 from app.services.risk_engine import ActionRequest, RiskAssessment, evaluate_action_risk
-from app.services.supabase_service import save_action_log
+from app.services.supabase_service import save_action_log, get_recent_logs
 
 router = APIRouter(tags=["Action Analysis"])
 
@@ -32,7 +33,6 @@ async def analyze_action(payload: ActionRequest) -> RiskAssessment:
             reason=assessment.reason,
         )
     except Exception as e:
-        # Graceful error handling for database issues without exposing secrets
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Risk analysis error: {str(e)}",
@@ -40,3 +40,13 @@ async def analyze_action(payload: ActionRequest) -> RiskAssessment:
 
     # Step 3: Return result to client
     return assessment
+
+
+@router.get(
+    "/activity-logs",
+    response_model=List[Dict[str, Any]],
+    summary="Fetch Recent Activity Logs",
+    description="Returns recent evaluated AI actions from Supabase for dashboard and judge review.",
+)
+async def fetch_activity_logs(limit: int = 20) -> List[Dict[str, Any]]:
+    return get_recent_logs(limit=limit)
