@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Decision Firewall</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-icon">🛡️</div>
+      <h1 class="header-title">AI Decision Firewall</h1>
+      <p class="header-subtitle">Action Risk Analyzer</p>
+    </header>
+
+    <!-- Input Form -->
+    <form id="analyzeForm" class="form">
+      <div class="form-group">
+        <label for="actionType">Action Type</label>
+        <select id="actionType" required>
+          <option value="" disabled selected>Select an action...</option>
+          <option value="search">Search</option>
+          <option value="open_page">Open Page</option>
+          <option value="fill_personal_info">Fill Personal Info</option>
+          <option value="upload_file">Upload File</option>
+          <option value="send_email">Send Email</option>
+          <option value="purchase">Purchase</option>
+          <option value="delete_file">Delete File</option>
+          <option value="money_transfer">Money Transfer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="website">Website</label>
+        <input type="text" id="website" placeholder="e.g. example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount (₹)</label>
+        <input type="number" id="amount" placeholder="e.g. 5000" min="0" step="0.01">
+      </div>
+
+      <div class="form-group">
+        <label for="details">Details / Item</label>
+        <input type="text" id="details" placeholder="e.g. Laptop, Document.pdf">
+      </div>
+
+      <button type="submit" id="analyzeBtn" class="btn-analyze">
+        <span id="btnText">🔍 Analyze Action</span>
+        <span id="btnLoader" class="loader hidden"></span>
+      </button>
+    </form>
+
+    <!-- Result Area -->
+    <div id="resultArea" class="result-area hidden">
+      <h2 class="result-title">Assessment Result</h2>
+
+      <div id="resultContent" class="result-content">
+        <div class="result-row">
+          <span class="result-label">Risk Level</span>
+          <span id="riskLevel" class="result-value badge"></span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Decision</span>
+          <span id="decision" class="result-value badge"></span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Action</span>
+          <span id="resultAction" class="result-value"></span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Website</span>
+          <span id="resultWebsite" class="result-value"></span>
+        </div>
+        <div class="result-row">
+          <span class="result-label">Amount</span>
+          <span id="resultAmount" class="result-value"></span>
+        </div>
+        <div class="result-row reason-row">
+          <span class="result-label">Reason</span>
+          <span id="reason" class="result-value reason-text"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Area -->
+    <div id="errorArea" class="error-area hidden">
+      <div class="error-icon">⚠️</div>
+      <p id="errorMessage" class="error-message"></p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Backend Service → <code id="backendHost">127.0.0.1:8000</code></p>
+    </footer>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

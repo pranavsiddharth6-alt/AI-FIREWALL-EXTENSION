@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "AI Decision Firewall",
+  "version": "1.0.0",
+  "description": "Safety and risk evaluation layer between AI agents and browser actions. Analyzes actions for risk before execution.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Decision Firewall"
+  },
+  "permissions": [],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://*.onrender.com/*"
+  ]
+}
